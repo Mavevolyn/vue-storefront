@@ -22,6 +22,16 @@ function createComposable() {
   setWishlist = factory.setWishlist;
 }
 
+const factoryParams = {
+  addItem: jest.fn(() => null),
+  removeItem: jest.fn(),
+  load: jest.fn(),
+  clear: jest.fn(),
+  isOnWishlist: jest.fn()
+};
+
+const { useWishlist: useWishlistMock } = useWishlistFactory<any, any, any>(factoryParams);
+
 describe('[CORE - factories] useWishlistFactory', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -73,6 +83,18 @@ describe('[CORE - factories] useWishlistFactory', () => {
         expect(params.load).toHaveBeenCalledWith({ context: null }, { customQuery });
         expect(wishlist.value).toEqual({ id: 'mocked_wishlist' });
       });
+
+      it('should set error if factory method throwed', async () => {
+        const err = new Error('zxczxcx');
+        factoryParams.load.mockImplementationOnce(() => {
+          throw err;
+        });
+        const { load, error } = useWishlistMock();
+
+        await load();
+
+        expect(error.value.load).toBe(err);
+      });
     });
 
     describe('addItem', () => {
@@ -84,6 +106,20 @@ describe('[CORE - factories] useWishlistFactory', () => {
           product: { id: 'productId' }
         });
         expect(wishlist.value).toEqual({ id: 'mocked_added_wishlist' });
+      });
+
+      it('should set error if factory method throwed', async () => {
+        const err = new Error('zxczxcx');
+        factoryParams.addItem.mockImplementationOnce(() => {
+          throw err;
+        });
+        const { addItem, error } = useWishlistMock();
+
+        await addItem({
+          product: { id: 'productId' }
+        });
+
+        expect(error.value.addItem).toBe(err);
       });
     });
 
@@ -97,6 +133,20 @@ describe('[CORE - factories] useWishlistFactory', () => {
         });
         expect(wishlist.value).toEqual({ id: 'mocked_removed_wishlist' });
       });
+
+      it('should set error if factory method throwed', async () => {
+        const err = new Error('zxczxcx');
+        factoryParams.removeItem.mockImplementationOnce(() => {
+          throw err;
+        });
+        const { removeItem, error } = useWishlistMock();
+
+        await removeItem({
+          product: { id: 'productId' }
+        });
+
+        expect(error.value.removeItem).toBe(err);
+      });
     });
 
     describe('clear', () => {
@@ -105,6 +155,18 @@ describe('[CORE - factories] useWishlistFactory', () => {
         await clear();
         expect(params.clear).toHaveBeenCalledWith({ context: null }, { currentWishlist: null });
         expect(wishlist.value).toEqual({ id: 'mocked_cleared_wishlist' });
+      });
+
+      it('should set error if factory method throwed', async () => {
+        const err = new Error('zxczxcx');
+        factoryParams.clear.mockImplementationOnce(() => {
+          throw err;
+        });
+        const { clear, error } = useWishlistMock();
+
+        await clear();
+
+        expect(error.value.clear).toBe(err);
       });
     });
   });
